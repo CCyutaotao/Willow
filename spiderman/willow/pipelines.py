@@ -7,7 +7,7 @@
 
 import pymongo
 from pymongo import IndexModel, ASCENDING
-from items import WillowItem
+from spiderman.willow.spiders.items import WillowItem
 
 
 class WillowPipeline(object):
@@ -15,7 +15,7 @@ class WillowPipeline(object):
     def __init__(self):
         client = pymongo.MongoClient("localhost", 27017)
         db = client["willow"]
-        self.academy = db["academy"]
+        self.academy = db["02"]
         idx = IndexModel([('title',ASCENDING)], unique=True)
         self.academy.create_indexes([idx])
 
@@ -23,7 +23,13 @@ class WillowPipeline(object):
         if isinstance(item, WillowItem):
             print 'academy  True'
         try:
-            self.academy.insert_one({'title':item['title']})
+            self.academy.insert_one({
+                'url':item['url'],
+                'title':item['title'],
+                'content': item['content'],
+                'date': item['content'],
+                'now': item['now']
+                })
         except Exception:
             pass
 
