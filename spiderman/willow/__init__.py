@@ -1,0 +1,1 @@
+from spiderman.willow.spiders import items

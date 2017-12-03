@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import scrapy
+import datetime
 
+import scrapy
 from scrapy_splash import SplashRequest
-from willow.items import WillowItem
+from items import WillowItem
 
 class AcademySpider(scrapy.Spider):
     name = 'academy'
@@ -34,6 +35,7 @@ class AcademySpider(scrapy.Spider):
         'http://121.41.25.203:8080/xsht/',
         'http://www.news.uestc.edu.cn/',
     ]
+    URL = []
 
     def start_requests(self):
         for url in self.start_urls:
@@ -43,8 +45,29 @@ class AcademySpider(scrapy.Spider):
     def parse(self, response):
         html = response.body
         title = response.css('title').extract_first()
+        urls = response.xpath('//a/@href').re('.*[0-9]+.+')
+        for url in urls:
+            if url in self.URL:
+                continue
+            else:
+                self.URL.append(url)
+            if url.startswith('/'):
+                url = '/'.join(response.url.split('/')[0:3]) + url
+            elif url.startswith('http') or url.startswith('www'):
+                url = url
+            else:
+                if response.url.endswith('/'):
+                    url = response.url + url
+                else:
+                    url = '/'.join(response.url.split('/')[0:-1]) + '/' + url
+            yield SplashRequest(url, self.parse_content, args={'wait':0.5})
+
+    def parse_content(self, response):
+        html = response.body
+        title = response.css('title').extract_first()
+        now = datetime
         item = WillowItem()
         item['title'] = title
-        yield item
-
-        pass
+        item['url'] = response.url
+        item['content'] = response.body
+        item['now'] = datetime.datetime.now().strftime('%Y-%m-%d')

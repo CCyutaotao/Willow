@@ -10,5 +10,9 @@ import scrapy
 from scrapy.item import Item, Field
 
 class WillowItem(scrapy.Item):
+    url = Field()
     title = Field()
+    content = Field()
+    time = Field()
+    now = Field()
 
